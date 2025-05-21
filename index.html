@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AES Encrypt / Decrypt - Colorful Style</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto&display=swap');
+
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #f7b733, #fc4a1a, #6a11cb);
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    background: #fff;
+    max-width: 580px;
+    width: 100%;
+    border-radius: 24px;
+    padding: 40px 35px;
+    box-shadow:
+      0 4px 15px rgba(252, 74, 26, 0.5),
+      0 6px 20px rgba(106, 17, 203, 0.5);
+    border: 3px solid #f7b733;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, #ff6a00, transparent 70%);
+    animation: pulse 8s infinite alternate;
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.15; }
+    100% { transform: scale(1.3) translate(20px, 10px); opacity: 0.3; }
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    margin: 0 0 30px;
+    text-align: center;
+    color: #f7b733;
+    text-shadow:
+      2px 2px 4px #fc4a1a,
+      0 0 10px #6a11cb;
+    position: relative;
+    z-index: 1;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #6a11cb;
+    font-size: 1.1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    border-radius: 20px;
+    border: 2px solid #f7b733;
+    outline: none;
+    box-shadow:
+      inset 0 0 6px #f7b733aa;
+    color: #333;
+    transition: all 0.3s ease;
+    resize: vertical;
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    z-index: 1;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus {
+    border-color: #fc4a1a;
+    box-shadow:
+      0 0 10px #fc4a1a,
+      inset 0 0 10px #f7b733cc;
+    background: #fff7e6;
+  }
+
+  textarea {
+    min-height: 140px;
+  }
+
+  input[type="file"] {
+    margin-bottom: 28px;
+    font-size: 1rem;
+    color: #6a11cb;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+  }
+
+  .button-group {
+    margin-top: 28px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  button {
+    background: linear-gradient(45deg, #f7b733, #fc4a1a);
+    border: none;
+    padding: 15px 38px;
+    margin: 0 14px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 30px;
+    color: #fff;
+    cursor: pointer;
+    box-shadow:
+      0 8px 15px rgba(252, 74, 26, 0.7);
+    transition: all 0.3s ease;
+    font-family: 'Fredoka One', cursive;
+    user-select: none;
+  }
+
+  button:hover {
+    background: linear-gradient(45deg, #fc4a1a, #f7b733);
+    box-shadow:
+      0 12px 22px rgba(247, 183, 51, 0.85);
+    transform: translateY(-3px);
+  }
+
+  #output {
+    margin-top: 35px;
+    background: #fff7e6;
+    border: 2px solid #fc4a1a;
+    border-radius: 20px;
+    padding: 20px 25px;
+    font-family: 'Consolas', monospace;
+    color: #6a11cb;
+    white-space: pre-wrap;
+    min-height: 80px;
+    box-shadow:
+      inset 0 0 8px #f7b733aa;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 640px) {
+    .container {
+      padding: 30px 25px;
+    }
+    button {
+      margin: 12px 6px;
+      width: 48%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-label="AES Encryption and Decryption Tool">
+  <h1>AES Encrypt / Decrypt</h1>
+
+  <label for="fileInput">Upload Text File</label>
+  <input type="file" id="fileInput" accept=".txt,.json,.csv,.md,.log" aria-describedby="fileHelp" />
+
+  <label for="keyInput">Secret Key (min 1 chars)</label>
+  <input type="text" id="keyInput" placeholder="Enter secret key" autocomplete="off" aria-required="true" />
+
+  <label for="plaintextInput">Plaintext</label>
+  <textarea id="plaintextInput" placeholder="Enter or upload text to encrypt" aria-multiline="true"></textarea>
+
+  <div class="button-group">
+    <button onclick="doEncrypt()" aria-label="Encrypt plaintext">🔒 Encrypt</button>
+    <button onclick="doDecrypt()" aria-label="Decrypt ciphertext">🔓 Decrypt</button>
+  </div>
+
+  <label for="ciphertextInput">Ciphertext (Base64)</label>
+  <textarea id="ciphertextInput" placeholder="Encrypted or decrypted text here" aria-multiline="true"></textarea>
+
+  <div id="output" aria-live="polite" role="status">Result will appear here.</div>
+</div>
+
+<script>
+  const output = document.getElementById('output');
+
+  document.getElementById('fileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('plaintextInput').value = e.target.result;
+      output.textContent = `Loaded file: ${file.name}`;
+    };
+    reader.onerror = () => {
+      output.textContent = "Failed to read file.";
+    };
+    reader.readAsText(file);
+  });
+
+  function str2ab(str) {
+    return new TextEncoder().encode(str);
+  }
+
+  function ab2str(buf) {
+    return new TextDecoder().decode(buf);
+  }
+
+  function ab2b64(buf) {
+    const bytes = new Uint8Array(buf);
+    let binary = '';
+    for (let b of bytes) binary += String.fromCharCode(b);
+    return btoa(binary);
+  }
+
+  function b642ab(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  async function getKeyMaterial(password) {
+    return window.crypto.subtle.importKey(
+      "raw",
+      str2ab(password),
+      "PBKDF2",
+      false,
+      ["deriveKey"]
+    );
+  }
+
+  async function deriveKey(password, salt) {
+    const keyMaterial = await getKeyMaterial(password);
+    return window.crypto.subtle.deriveKey(
+      {
+        "name": "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      keyMaterial,
+      { name: "AES-GCM", length: 256 },
+      true,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function doEncrypt() {
+    const password = document.getElementById('keyInput').value.trim();
+    const plaintext = document.getElementById('plaintextInput').value;
+
+    if (password.length < 1) {
+      alert("Key must be at least 1 characters");
+      return;
+    }
+    if (!plaintext) {
+      alert("Enter plaintext to encrypt");
+      return;
+    }
+
+    try {
+      const salt = crypto.getRandomValues(new Uint8Array(1));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveKey(password, salt);
+
+      const encrypted = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        str2ab(plaintext)
+      );
+
+      const combined = new Uint8Array(salt.byteLength + iv.byteLength + encrypted.byteLength);
+      combined.set(salt, 0);
+      combined.set(iv, salt.byteLength);
+      combined.set(new Uint8Array(encrypted), salt.byteLength + iv.byteLength);
+
+      document.getElementById('ciphertextInput').value = ab2b64(combined.buffer);
+      output.textContent = "Encryption successful.";
+    } catch (e) {
+      output.textContent = "Encryption failed: " + e.message;
+    }
+  }
+
+  async function doDecrypt() {
+    const password = document.getElementById('keyInput').value.trim();
+    const ciphertextB64 = document.getElementById('ciphertextInput').value.trim();
+
+    if (password.length < 1) {
+      alert("Key must be at least 1 characters");
+      return;
+    }
+    if (!ciphertextB64) {
+      alert("Enter ciphertext to decrypt");
+      return;
+    }
+
+    try {
+      const combined = new Uint8Array(b642ab(ciphertextB64));
+      const salt = combined.slice(0, 1);
+      const iv = combined.slice(1, 28);
+      const data = combined.slice(28);
+
+      const key = await deriveKey(password, salt);
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        data
+      );
+
+      document.getElementById('plaintextInput').value = ab2str(decrypted);
+      output.textContent = "Decryption successful.";
+    } catch (e) {
+      output.textContent = "Decryption failed: " + e.message;
+    }
+  }
+</script>
+
+</body>
+</html>

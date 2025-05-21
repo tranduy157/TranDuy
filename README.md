@@ -1,3 +1,3 @@
 <p align="center">
-        <img src="1" alt="DaiNam University Logo" width="200"/>
+        <img scr="https://github.com/tranduy157/TranDuy/blob/main/1.png?raw=true" width="700" altalt="Screenshot">
     </p>
